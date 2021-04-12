@@ -5,7 +5,7 @@
       src="http://www.dell-lee.com/imgs/vue3/user.png" alt="用户注册头像"
     >
     <div class="wrapper__input">
-      <input type="text" class="wrapper__input__content" placeholder="请输入手机号">
+      <input type="text" class="wrapper__input__content" placeholder="请输入用户名">
     </div>
     <div class="wrapper__input">
       <input type="password" class="wrapper__input__content" placeholder="请输入密码">
