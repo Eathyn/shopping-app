@@ -11,7 +11,7 @@
       <input type="password" class="wrapper__input__content" placeholder="请输入密码">
     </div>
     <div class="wrapper__login-button" @click="handleLogin">登录</div>
-    <div class="wrapper__login-link">立即注册</div>
+    <div class="wrapper__login-link" @click="handleRegisterClick">立即注册</div>
   </div>
 </template>
 
@@ -26,7 +26,10 @@ export default {
       localStorage.isLogin = true
       router.push({ name: 'Home' })
     }
-    return { handleLogin }
+    const handleRegisterClick = () => {
+      router.push({ name: 'Register' })
+    }
+    return { handleLogin, handleRegisterClick }
   }
 }
 </script>
