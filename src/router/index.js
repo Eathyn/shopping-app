@@ -20,4 +20,9 @@ const router = createRouter({
   routes
 })
 
+router.beforeEach((to, from, next) => {
+  const { isLogin } = localStorage
+  ;(isLogin || to.path === '/login') ? next() : next({ name: 'Login' })
+})
+
 export default router
