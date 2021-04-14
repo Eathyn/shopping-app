@@ -1,51 +1,85 @@
 <template>
   <div class="wrapper">
-    <img
-      class="wrapper__img"
-      src="http://www.dell-lee.com/imgs/vue3/user.png" alt="用户注册头像"
-    >
+    <img class="wrapper__img"
+         src="http://www.dell-lee.com/imgs/vue3/user.png" alt="用户注册头像">
     <div class="wrapper__input">
-      <input type="text" class="wrapper__input__content" placeholder="请输入用户名" v-model="data.username">
+      <input type="text" class="wrapper__input__content" placeholder="请输入用户名" v-model="username"
+             autocomplete="new-password">
     </div>
     <div class="wrapper__input">
-      <input type="password" class="wrapper__input__content" placeholder="请输入密码" v-model="data.password">
+      <input type="password" class="wrapper__input__content" placeholder="请输入密码" v-model="password"
+             autocomplete="new-password">
     </div>
     <div class="wrapper__login-button" @click="handleLogin">登录</div>
     <div class="wrapper__login-link" @click="handleRegisterClick">立即注册</div>
+    <Toast v-if="show" :message="toastMessage" />
   </div>
 </template>
 
 <script>
+import { reactive, toRefs } from 'vue'
 import { useRouter } from 'vue-router'
-import { reactive } from 'vue'
-import axios from 'axios'
+import { post } from '../../utils/request'
+import Toast, { useToastEffect } from '../../components/Toast'
 
-axios.defaults.headers.post['Content-Type'] = 'application/json'
+// user login
+const useLoginEffect = (showToast) => {
+  const router = useRouter()
+  const data = reactive({ username: '', password: '' })
+
+  const handleLogin = async () => {
+    const { username, password } = data
+    // verify
+    if (username === '') {
+      showToast('用户名为空')
+      return
+    } else if (password === '') {
+      showToast('密码为空')
+      return
+    }
+    // send request
+    try {
+      const result = await post('/api/user/login', { username, password })
+      if (result?.errno === 0) {
+        localStorage.isLogin = true
+        await router.push({ name: 'Home' })
+      } else {
+        showToast('登录失败')
+      }
+    } catch (err) {
+      showToast('请求失败')
+    }
+  }
+  const { username, password } = toRefs(data)
+  return { username, password, handleLogin }
+}
+
+// redirect to register page
+const useRegisterEffect = () => {
+  const router = useRouter()
+  const handleRegisterClick = () => {
+    router.push({ name: 'Register' })
+  }
+  return { handleRegisterClick }
+}
 
 export default {
   name: 'Login',
+  components: {
+    Toast
+  },
   setup () {
-    const data = reactive({
-      username: '',
-      password: ''
-    })
-    const router = useRouter()
-    const handleLogin = async () => {
-      try {
-        await axios.post('https://www.fastmock.site/mock/ae8e90319471302fed5f92425995aa19/jd/api/user/login', {
-          username: data.username,
-          password: data.password
-        })
-        localStorage.isLogin = true
-        await router.push({ name: 'Home' })
-      } catch (err) {
-        alert('登录失败')
-      }
+    const { show, toastMessage, showToast } = useToastEffect()
+    const { username, password, handleLogin } = useLoginEffect(showToast)
+    const { handleRegisterClick } = useRegisterEffect()
+    return {
+      username,
+      password,
+      show,
+      toastMessage,
+      handleLogin,
+      handleRegisterClick
     }
-    const handleRegisterClick = () => {
-      router.push({ name: 'Register' })
-    }
-    return { data, handleLogin, handleRegisterClick }
   }
 }
 </script>
